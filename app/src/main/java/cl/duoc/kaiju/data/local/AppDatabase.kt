@@ -6,23 +6,26 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import cl.duoc.kaiju.data.local.dao.MovimientoDao
 import cl.duoc.kaiju.data.local.dao.ProductoDao
+import cl.duoc.kaiju.data.local.dao.VentaDao
 import cl.duoc.kaiju.data.local.entity.MovimientoEntity
 import cl.duoc.kaiju.data.local.entity.ProductoEntity
+import cl.duoc.kaiju.data.local.entity.VentaEntity
+
 
 @Database(
-    entities = [ProductoEntity::class, MovimientoEntity::class],
-    version = 2,
+    entities = [ProductoEntity::class, MovimientoEntity::class, VentaEntity::class],
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
 
     abstract val productoDao: ProductoDao
     abstract val movimientoDao: MovimientoDao
+    abstract val ventaDao: VentaDao
 
     companion object {
         @Volatile
         private var instancia: AppDatabase? = null
-
         fun getInstance(context: Context): AppDatabase {
             return instancia ?: synchronized(this) {
                 instancia ?: Room.databaseBuilder(
