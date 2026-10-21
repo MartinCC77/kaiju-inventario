@@ -12,6 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+
 
 @Composable
 fun CampoTexto(
@@ -20,14 +23,14 @@ fun CampoTexto(
     icono: ImageVector,
     error: String?,
     onChange: (String) -> Unit,
-    tipoTeclado: KeyboardType = KeyboardType.Text
+    tipoTeclado: KeyboardType = KeyboardType.Text,
+    esClave: Boolean = false
 ) {
     OutlinedTextField(
         value = valor,
         onValueChange = onChange,
         label = { Text(etiqueta) },
         leadingIcon = { Icon(icono, contentDescription = null) },
-        // Si hay error, muestra un ícono rojo a la derecha
         trailingIcon = {
             if (error != null) {
                 Icon(
@@ -39,6 +42,7 @@ fun CampoTexto(
         },
         isError = error != null,
         supportingText = { error?.let { Text(it) } },
+        visualTransformation = if (esClave) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = KeyboardOptions(keyboardType = tipoTeclado),
         singleLine = true,
         modifier = Modifier.fillMaxWidth()

@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Description
@@ -17,6 +17,8 @@ import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -37,22 +39,32 @@ import cl.duoc.kaiju.ui.components.ProductoItem
 import cl.duoc.kaiju.viewmodel.ProductoViewModel
 import kotlinx.coroutines.launch
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductoScreen(
-    viewModel: ProductoViewModel = viewModel()
+    viewModel: ProductoViewModel = viewModel(),
+    onCerrarSesion: () -> Unit = {}
 ) {
-    // Observa el estado del formulario y la lista de productos
     val estado by viewModel.state.collectAsState()
     val productos by viewModel.productos.collectAsState()
 
-    // Para mostrar el mensaje "Producto guardado"
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Kaiju · Inventario") }) },
+        topBar = {
+            TopAppBar(
+                title = { Text("Kaiju · Inventario") },
+                actions = {
+                    IconButton(onClick = onCerrarSesion) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Logout,
+                            contentDescription = "Cerrar sesión"
+                        )
+                    }
+                }
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         LazyColumn(
@@ -67,47 +79,67 @@ fun ProductoScreen(
             }
             item {
                 CampoTexto(
-                    valor = estado.codigo, etiqueta = "Código", icono = Icons.Filled.Tag,
-                    error = estado.errores.codigo, onChange = viewModel::onCodigoChanged
+                    valor = estado.codigo,
+                    etiqueta = "Código",
+                    icono = Icons.Filled.Tag,
+                    error = estado.errores.codigo,
+                    onChange = viewModel::onCodigoChanged
                 )
             }
             item {
                 CampoTexto(
-                    valor = estado.nombre, etiqueta = "Nombre", icono = Icons.Filled.Inventory2,
-                    error = estado.errores.nombre, onChange = viewModel::onNombreChanged
+                    valor = estado.nombre,
+                    etiqueta = "Nombre",
+                    icono = Icons.Filled.Inventory2,
+                    error = estado.errores.nombre,
+                    onChange = viewModel::onNombreChanged
                 )
             }
             item {
                 CampoTexto(
-                    valor = estado.descripcion, etiqueta = "Descripción (opcional)",
+                    valor = estado.descripcion,
+                    etiqueta = "Descripción (opcional)",
                     icono = Icons.Filled.Description,
-                    error = null, onChange = viewModel::onDescripcionChanged
+                    error = null,
+                    onChange = viewModel::onDescripcionChanged
                 )
             }
             item {
                 CampoTexto(
-                    valor = estado.categoria, etiqueta = "Categoría", icono = Icons.Filled.Category,
-                    error = estado.errores.categoria, onChange = viewModel::onCategoriaChanged
+                    valor = estado.categoria,
+                    etiqueta = "Categoría",
+                    icono = Icons.Filled.Category,
+                    error = estado.errores.categoria,
+                    onChange = viewModel::onCategoriaChanged
                 )
             }
             item {
                 CampoTexto(
-                    valor = estado.precio, etiqueta = "Precio", icono = Icons.Filled.AttachMoney,
-                    error = estado.errores.precio, onChange = viewModel::onPrecioChanged,
+                    valor = estado.precio,
+                    etiqueta = "Precio",
+                    icono = Icons.Filled.AttachMoney,
+                    error = estado.errores.precio,
+                    onChange = viewModel::onPrecioChanged,
                     tipoTeclado = KeyboardType.Decimal
                 )
             }
             item {
                 CampoTexto(
-                    valor = estado.stock, etiqueta = "Stock actual", icono = Icons.Filled.Inventory2,
-                    error = estado.errores.stock, onChange = viewModel::onStockChanged,
+                    valor = estado.stock,
+                    etiqueta = "Stock actual",
+                    icono = Icons.Filled.Inventory2,
+                    error = estado.errores.stock,
+                    onChange = viewModel::onStockChanged,
                     tipoTeclado = KeyboardType.Number
                 )
             }
             item {
                 CampoTexto(
-                    valor = estado.stockMinimo, etiqueta = "Stock mínimo", icono = Icons.Filled.Warning,
-                    error = estado.errores.stockMinimo, onChange = viewModel::onStockMinimoChanged,
+                    valor = estado.stockMinimo,
+                    etiqueta = "Stock mínimo",
+                    icono = Icons.Filled.Warning,
+                    error = estado.errores.stockMinimo,
+                    onChange = viewModel::onStockMinimoChanged,
                     tipoTeclado = KeyboardType.Number
                 )
             }
