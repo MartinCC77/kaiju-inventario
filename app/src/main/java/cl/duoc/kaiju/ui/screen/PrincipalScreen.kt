@@ -44,10 +44,7 @@ fun PrincipalScreen(onCerrarSesion: () -> Unit) {
             Crossfade(targetState = destinoActual, label = "cambioDeSeccion") { destino ->
                 when (destino) {
                     Destino.PRODUCTOS -> ProductoScreen(onCerrarSesion = onCerrarSesion)
-                    Destino.MOVIMIENTOS -> PantallaPendiente(
-                        "Movimientos",
-                        "Aquí se registrarán entradas, salidas y ajustes de stock."
-                    )
+                    Destino.MOVIMIENTOS -> MovimientoScreen()
                     Destino.VENTAS -> PantallaPendiente(
                         "Ventas",
                         "Aquí se registrarán las ventas de productos."
