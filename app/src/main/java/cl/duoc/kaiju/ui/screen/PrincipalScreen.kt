@@ -45,10 +45,7 @@ fun PrincipalScreen(onCerrarSesion: () -> Unit) {
                 when (destino) {
                     Destino.PRODUCTOS -> ProductoScreen(onCerrarSesion = onCerrarSesion)
                     Destino.MOVIMIENTOS -> MovimientoScreen()
-                    Destino.VENTAS -> PantallaPendiente(
-                        "Ventas",
-                        "Aquí se registrarán las ventas de productos."
-                    )
+                    Destino.VENTAS -> VentaScreen()
                     Destino.RESUMEN -> PantallaPendiente(
                         "Resumen",
                         "Aquí irán los indicadores y los productos más vendidos."
