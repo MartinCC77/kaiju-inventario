@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import cl.duoc.kaiju.ui.screen.ProductoScreen
+import cl.duoc.kaiju.ui.navigation.AppNavegacion
 import cl.duoc.kaiju.ui.theme.KaijuTheme
 
 class MainActivity : ComponentActivity() {
@@ -13,7 +13,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             KaijuTheme {
-                ProductoScreen()
+                AppNavegacion()
             }
         }
     }
