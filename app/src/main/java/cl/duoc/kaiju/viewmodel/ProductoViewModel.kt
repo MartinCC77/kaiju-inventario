@@ -22,11 +22,7 @@ import kotlinx.coroutines.launch
 class ProductoViewModel(application: Application) : AndroidViewModel(application) {
 
     // Base de datos local
-    private val database = Room.databaseBuilder(
-        context = application,
-        klass = AppDatabase::class.java,
-        name = "kaiju_database"
-    ).build()
+    private val database = AppDatabase.getInstance(application)
 
     private val productoDao = database.productoDao
 
@@ -107,7 +103,6 @@ class ProductoViewModel(application: Application) : AndroidViewModel(application
 
     //Acciones
 
-    /** Valida y guarda el producto. Llama a onGuardado si todo salió bien. */
     fun guardarProducto(onGuardado: () -> Unit) {
         if (!validar()) return
 
