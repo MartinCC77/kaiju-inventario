@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Inventory2
+import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -20,6 +21,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -28,8 +30,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -38,6 +42,7 @@ import cl.duoc.kaiju.ui.components.CampoTexto
 import cl.duoc.kaiju.ui.components.ProductoItem
 import cl.duoc.kaiju.viewmodel.ProductoViewModel
 import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,6 +55,21 @@ fun ProductoScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    // Controla si se muestra el escáner de la cámara
+    var mostrarEscaner by remember { mutableStateOf(false) }
+
+    // Si el escáner está abierto, se muestra en vez del formulario
+    if (mostrarEscaner) {
+        EscanerScreen(
+            onCodigoDetectado = { codigo ->
+                viewModel.onCodigoChanged(codigo.trim()) // rellena el campo Código
+                mostrarEscaner = false
+            },
+            onCerrar = { mostrarEscaner = false }
+        )
+        return
+    }
 
     Scaffold(
         topBar = {
@@ -76,6 +96,15 @@ fun ProductoScreen(
         ) {
             item {
                 Text("Nuevo producto", style = MaterialTheme.typography.titleLarge)
+            }
+            item {
+                OutlinedButton(
+                    onClick = { mostrarEscaner = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Filled.QrCodeScanner, contentDescription = null)
+                    Text("  Escanear código con la cámara")
+                }
             }
             item {
                 CampoTexto(
