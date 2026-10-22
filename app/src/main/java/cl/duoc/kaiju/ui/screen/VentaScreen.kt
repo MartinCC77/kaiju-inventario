@@ -39,6 +39,7 @@ import cl.duoc.kaiju.ui.components.CampoTexto
 import cl.duoc.kaiju.ui.components.VentaItem
 import cl.duoc.kaiju.viewmodel.VentaViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.material.icons.filled.QrCodeScanner
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +56,30 @@ fun VentaScreen(
     // Controla si el menú desplegable de productos está abierto
     var menuAbierto by remember { mutableStateOf(false) }
     val productoSeleccionado = productos.find { it.id == estado.productoId }
+
+    // Controla si se muestra el escáner de la cámara
+    var mostrarEscaner by remember { mutableStateOf(false) }
+
+    if (mostrarEscaner) {
+        EscanerScreen(
+            onCodigoDetectado = { codigo ->
+                mostrarEscaner = false
+                // Busca el producto cuyo código coincide con el leído
+                val encontrado = productos.find {
+                    it.codigo.equals(codigo.trim(), ignoreCase = true)
+                }
+                if (encontrado != null) {
+                    viewModel.onProductoSeleccionado(encontrado)
+                } else {
+                    scope.launch {
+                        snackbarHostState.showSnackbar("No existe un producto con el código $codigo")
+                    }
+                }
+            },
+            onCerrar = { mostrarEscaner = false }
+        )
+        return
+    }
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("Ventas") }) },
@@ -80,7 +105,18 @@ fun VentaScreen(
                 }
             }
 
+            item {
+                OutlinedButton(
+                    onClick = { mostrarEscaner = true },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(Icons.Filled.QrCodeScanner, contentDescription = null)
+                    Text("  Escanear producto con la cámara")
+                }
+            }
+
             // Selector de producto
+
             item {
                 Box {
                     OutlinedButton(
