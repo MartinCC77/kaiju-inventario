@@ -174,7 +174,9 @@ fun MovimientoScreen(
                 Text("Historial (${movimientos.size})", style = MaterialTheme.typography.titleLarge)
             }
             items(movimientos, key = { it.id }) { movimiento ->
-                MovimientoItem(movimiento)
+                Box(modifier = Modifier.animateItem()) {
+                    MovimientoItem(movimiento)
+                }
             }
         }
     }

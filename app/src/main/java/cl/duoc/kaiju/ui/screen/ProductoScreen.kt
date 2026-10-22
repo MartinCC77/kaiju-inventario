@@ -42,6 +42,7 @@ import cl.duoc.kaiju.ui.components.CampoTexto
 import cl.duoc.kaiju.ui.components.ProductoItem
 import cl.duoc.kaiju.viewmodel.ProductoViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.layout.Box
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -189,10 +190,13 @@ fun ProductoScreen(
                 Text("Inventario (${productos.size})", style = MaterialTheme.typography.titleLarge)
             }
             items(productos, key = { it.id }) { producto ->
-                ProductoItem(
-                    producto = producto,
-                    onEliminar = { viewModel.eliminarProducto(producto) }
-                )
+                // Box con animateItem: la tarjeta se desliza al agregar o eliminar productos
+                Box(modifier = Modifier.animateItem()) {
+                    ProductoItem(
+                        producto = producto,
+                        onEliminar = { viewModel.eliminarProducto(producto) }
+                    )
+                }
             }
         }
     }

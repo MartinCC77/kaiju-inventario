@@ -203,7 +203,9 @@ fun VentaScreen(
                 Text("Historial (${ventas.size})", style = MaterialTheme.typography.titleLarge)
             }
             items(ventas, key = { it.id }) { venta ->
-                VentaItem(venta)
+                Box(modifier = Modifier.animateItem()) {
+                    VentaItem(venta)
+                }
             }
         }
     }
