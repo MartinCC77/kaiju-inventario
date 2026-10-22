@@ -1,5 +1,9 @@
 package cl.duoc.kaiju.ui.screen
 
+import android.Manifest
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -10,19 +14,37 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import cl.duoc.kaiju.ui.components.PantallaPendiente
+import androidx.compose.ui.platform.LocalContext
 import cl.duoc.kaiju.ui.navigation.Destino
+import cl.duoc.kaiju.utils.NotificacionHelper
 
 
 @Composable
 fun PrincipalScreen(onCerrarSesion: () -> Unit) {
+    val context = LocalContext.current
+
     // Sección activa (se conserva al rotar la pantalla)
     var destinoActual by rememberSaveable { mutableStateOf(Destino.PRODUCTOS) }
+
+    // Lanzador del cuadro del sistema que pide el permiso (si lo rechaza, la app sigue igual)
+    val lanzadorPermiso = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { }
+
+    // Al entrar a la app, si falta el permiso de notificaciones, se pide
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            !NotificacionHelper.tienePermiso(context)
+        ) {
+            lanzadorPermiso.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
 
     Scaffold(
         bottomBar = {
