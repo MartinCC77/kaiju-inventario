@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import cl.duoc.kaiju.utils.NotificacionHelper
 
 
 class VentaViewModel(application: Application) : AndroidViewModel(application) {
@@ -131,6 +132,16 @@ class VentaViewModel(application: Application) : AndroidViewModel(application) {
                         stockResultante = nuevoStock,
                         motivo = "Venta"
                     )
+                )
+            }
+            // Si el stock quedó en el mínimo o menos, se avisa con una notificación
+            if (nuevoStock <= producto.stockMinimo) {
+                NotificacionHelper.mostrarStockBajo(
+                    context = getApplication<Application>(),
+                    productoId = producto.id,
+                    nombre = producto.nombre,
+                    stock = nuevoStock,
+                    stockMinimo = producto.stockMinimo
                 )
             }
 
