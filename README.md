@@ -112,7 +112,7 @@ app/src/main/java/cl/duoc/kaiju
 
 ## Planificación
 
-Tablero de Trello: _(pegar aquí el enlace del tablero)_
+https://trello.com/invite/b/6add3a90d2d39b51422d26f7/ATTI29956f90b1204e577b84c5017c435087057433D7/kaiju-inventario-grupo-8
 
 ## Estado del proyecto
 
