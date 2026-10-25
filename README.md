@@ -77,18 +77,20 @@ Las validaciones están en los ViewModel, desacopladas de la interfaz.
 
 ```
 app/src/main/java/cl/duoc/kaiju
-├── data/local
-│   ├── AppDatabase.kt
-│   ├── dao/        ProductoDao, MovimientoDao, VentaDao
-│   └── entity/     ProductoEntity, MovimientoEntity, VentaEntity
+├── data/
+│   └── local/
+│       ├── AppDatabase.kt
+│       ├── dao/        ProductoDao, MovimientoDao, VentaDao
+│       └── entity/     ProductoEntity, MovimientoEntity, VentaEntity
 ├── model/          estados de UI, errores y tipos
-├── utils/          validaciones y notificaciones
-├── viewmodel/      Login, Producto, Movimiento, Venta y Resumen
-├── ui
+├── repository/     capa de repositorio para acceso a datos
+├── ui/
 │   ├── components/ componentes reutilizables
 │   ├── navigation/ navegación raíz y destinos
 │   ├── screen/     pantallas
 │   └── theme/      tema Material 3
+├── utils/          validaciones y notificaciones
+├── viewmodel/      Login, Producto, Movimiento, Venta y Resumen
 └── MainActivity.kt
 ```
 
