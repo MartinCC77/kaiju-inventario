@@ -3,12 +3,13 @@ package cl.duoc.kaiju.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.withTransaction
 import cl.duoc.kaiju.data.local.AppDatabase
-import cl.duoc.kaiju.data.local.entity.MovimientoEntity
+import cl.duoc.kaiju.data.repository.MovimientoRepository
+import cl.duoc.kaiju.data.repository.ProductoRepository
 import cl.duoc.kaiju.model.MovimientoErrores
 import cl.duoc.kaiju.model.MovimientoUiState
 import cl.duoc.kaiju.model.TipoMovimiento
+import cl.duoc.kaiju.utils.NotificacionHelper
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -16,29 +17,28 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import cl.duoc.kaiju.utils.NotificacionHelper
 
 class MovimientoViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database = AppDatabase.getInstance(application)
-    private val productoDao = database.productoDao
-    private val movimientoDao = database.movimientoDao
+    private val productoRepository = ProductoRepository(database.productoDao)
+    private val movimientoRepository = MovimientoRepository(database)
 
     // Productos disponibles para elegir en el formulario
-    val productos = productoDao.getAllProductos().stateIn(
+    val productos = productoRepository.productos.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
 
     // Historial de movimientos
-    val movimientos = movimientoDao.getAllMovimientos().stateIn(
+    val movimientos = movimientoRepository.movimientos.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
     )
 
-    //Estado del formulario
+    // Estado del formulario
     private val _state = MutableStateFlow(MovimientoUiState())
     val state: StateFlow<MovimientoUiState> = _state.asStateFlow()
 
@@ -61,7 +61,6 @@ class MovimientoViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     //Validación
-
     private fun validar(): Boolean {
         val s = _state.value
         val cantidad = s.cantidad.toIntOrNull()
@@ -83,7 +82,7 @@ class MovimientoViewModel(application: Application) : AndroidViewModel(applicati
         return errores == MovimientoErrores()
     }
 
-
+    //Acción principal
     fun registrarMovimiento(onGuardado: () -> Unit) {
         if (!validar()) return
 
@@ -91,8 +90,8 @@ class MovimientoViewModel(application: Application) : AndroidViewModel(applicati
             val s = _state.value
             val cantidad = s.cantidad.toInt()
 
-            // Se lee el producto actual desde la base para usar su stock real
-            val producto = productoDao.getProductoById(s.productoId!!) ?: return@launch
+            // Se lee el producto actual para usar su stock real
+            val producto = productoRepository.obtenerPorId(s.productoId!!) ?: return@launch
 
             val nuevoStock = when (s.tipo) {
                 TipoMovimiento.ENTRADA -> producto.stock + cantidad
@@ -112,20 +111,13 @@ class MovimientoViewModel(application: Application) : AndroidViewModel(applicati
                 return@launch
             }
 
-            // Las dos operaciones se hacen juntas: o se guardan ambas o ninguna
-            database.withTransaction {
-                productoDao.update(producto.copy(stock = nuevoStock))
-                movimientoDao.insert(
-                    MovimientoEntity(
-                        productoId = producto.id,
-                        productoNombre = producto.nombre,
-                        tipo = s.tipo.name,
-                        cantidad = cantidad,
-                        stockResultante = nuevoStock,
-                        motivo = s.motivo.trim()
-                    )
-                )
-            }
+            movimientoRepository.registrar(
+                producto = producto,
+                tipo = s.tipo,
+                cantidad = cantidad,
+                nuevoStock = nuevoStock,
+                motivo = s.motivo.trim()
+            )
 
             // Si fue una salida o ajuste y el stock quedó en el mínimo o menos, se avisa
             if (s.tipo != TipoMovimiento.ENTRADA && nuevoStock <= producto.stockMinimo) {
