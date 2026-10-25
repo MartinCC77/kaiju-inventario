@@ -3,9 +3,9 @@ package cl.duoc.kaiju.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.Room
 import cl.duoc.kaiju.data.local.AppDatabase
 import cl.duoc.kaiju.data.local.entity.ProductoEntity
+import cl.duoc.kaiju.data.repository.ProductoRepository
 import cl.duoc.kaiju.model.ProductoErrores
 import cl.duoc.kaiju.model.ProductoUiState
 import cl.duoc.kaiju.utils.esDecimalValido
@@ -18,16 +18,15 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-
 class ProductoViewModel(application: Application) : AndroidViewModel(application) {
 
-    // Base de datos local
-    private val database = AppDatabase.getInstance(application)
-
-    private val productoDao = database.productoDao
+    // El repository es quien accede a la base de datos
+    private val repository = ProductoRepository(
+        AppDatabase.getInstance(application).productoDao
+    )
 
     // Lista de productos: se actualiza sola cuando cambia la base de datos
-    val productos = productoDao.getAllProductos().stateIn(
+    val productos = repository.productos.stateIn(
         scope = viewModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = emptyList()
@@ -37,9 +36,7 @@ class ProductoViewModel(application: Application) : AndroidViewModel(application
     private val _state = MutableStateFlow(ProductoUiState())
     val state: StateFlow<ProductoUiState> = _state.asStateFlow()
 
-    // Eventos: cada vez que el usuario escribe
-    // Al escribir, se limpia el error de ese campo.
-
+    // ---------- Eventos: cada vez que el usuario escribe ----------
     fun onCodigoChanged(valor: String) {
         _state.update { it.copy(codigo = valor, errores = it.errores.copy(codigo = null)) }
     }
@@ -68,7 +65,7 @@ class ProductoViewModel(application: Application) : AndroidViewModel(application
         _state.update { it.copy(stockMinimo = valor, errores = it.errores.copy(stockMinimo = null)) }
     }
 
-    //Validación
+    // ---------- Validación ----------
 
     private fun validar(): Boolean {
         val s = _state.value
@@ -101,7 +98,7 @@ class ProductoViewModel(application: Application) : AndroidViewModel(application
         return errores == ProductoErrores()
     }
 
-    //Acciones
+    // ---------- Acciones ----------
 
     fun guardarProducto(onGuardado: () -> Unit) {
         if (!validar()) return
@@ -110,14 +107,14 @@ class ProductoViewModel(application: Application) : AndroidViewModel(application
             val s = _state.value
 
             // No permite dos productos con el mismo código
-            if (productoDao.getProductoByCodigo(s.codigo.trim()) != null) {
+            if (repository.obtenerPorCodigo(s.codigo.trim()) != null) {
                 _state.update {
                     it.copy(errores = it.errores.copy(codigo = "Ya existe un producto con este código"))
                 }
                 return@launch
             }
 
-            productoDao.insert(
+            repository.insertar(
                 ProductoEntity(
                     codigo = s.codigo.trim(),
                     nombre = s.nombre.trim(),
@@ -129,12 +126,12 @@ class ProductoViewModel(application: Application) : AndroidViewModel(application
                 )
             )
 
-            _state.value = ProductoUiState() //limpia el formulario
+            _state.value = ProductoUiState()
             onGuardado()
         }
     }
 
     fun eliminarProducto(producto: ProductoEntity) {
-        viewModelScope.launch { productoDao.delete(producto) }
+        viewModelScope.launch { repository.eliminar(producto) }
     }
 }
