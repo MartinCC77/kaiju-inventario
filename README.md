@@ -112,6 +112,13 @@ app/src/main/java/cl/duoc/kaiju
 
 **Nota:** la base de datos usa migración destructiva (`fallbackToDestructiveMigration`), por lo que al cambiar la versión del esquema se borran los datos de prueba.
 
+### Entorno y Versiones Utilizadas
+- **Lenguaje:** Kotlin 1.9+
+- **JDK / Java:** OpenJDK 17 o superior
+- **Android Gradle Plugin (AGP):** 8.x
+- **SDK de Android:** Mínimo API 30 (Android 11) / Objetivo API 34
+- **IDE:** Android Studio Iguana / IntelliJ IDEA 2023+
+
 ## Planificación
 
 https://trello.com/invite/b/6add3a90d2d39b51422d26f7/ATTI29956f90b1204e577b84c5017c435087057433D7/kaiju-inventario-grupo-8
