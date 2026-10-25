@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import cl.duoc.kaiju.data.local.AppDatabase
 import cl.duoc.kaiju.data.local.entity.ProductoEntity
 import cl.duoc.kaiju.data.local.entity.VentaEntity
+import cl.duoc.kaiju.data.repository.ProductoRepository
+import cl.duoc.kaiju.data.repository.VentaRepository
 import cl.duoc.kaiju.model.ItemCategoria
 import cl.duoc.kaiju.model.ItemRanking
 import cl.duoc.kaiju.model.ResumenUiState
@@ -17,18 +19,21 @@ import kotlinx.coroutines.flow.stateIn
 class ResumenViewModel(application: Application) : AndroidViewModel(application) {
 
     private val database = AppDatabase.getInstance(application)
+    private val productoRepository = ProductoRepository(database.productoDao)
+    private val ventaRepository = VentaRepository(database)
 
     // Se recalcula automáticamente cuando cambian los productos o las ventas
-    val state: StateFlow<ResumenUiState> = combine(
-        database.productoDao.getAllProductos(),
-        database.ventaDao.getAllVentas()
-    ) { productos, ventas ->
-        calcular(productos, ventas)
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = ResumenUiState()
-    )
+    val state: StateFlow<ResumenUiState> =
+        combine<List<ProductoEntity>, List<VentaEntity>, ResumenUiState>(
+            productoRepository.productos,
+            ventaRepository.ventas
+        ) { productos, ventas ->
+            calcular(productos, ventas)
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = ResumenUiState()
+        )
 
     private fun calcular(
         productos: List<ProductoEntity>,
