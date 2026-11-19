@@ -33,8 +33,7 @@ import cl.duoc.kaiju.viewmodel.LoginViewModel
 @Composable
 fun LoginScreen(
     onLoginExitoso: () -> Unit,
-    viewModel: LoginViewModel = viewModel()
-) {
+    viewModel: LoginViewModel = viewModel(factory = LoginViewModel.Factory)) {
     val estado by viewModel.state.collectAsState()
 
     Scaffold { padding ->

@@ -1,22 +1,27 @@
 package cl.duoc.kaiju.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import cl.duoc.kaiju.model.LoginErrores
 import cl.duoc.kaiju.model.LoginUiState
+import cl.duoc.kaiju.model.ResultadoLogin
+import cl.duoc.kaiju.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-
-class LoginViewModel : ViewModel() {
+// El repository llega por el constructor ("enchufe"): así en las pruebas se puede usar uno falso
+class LoginViewModel(
+    private val authRepository: AuthRepository
+) : ViewModel() {
 
     private val _state = MutableStateFlow(LoginUiState())
     val state: StateFlow<LoginUiState> = _state.asStateFlow()
-
-    // Credenciales de prueba (solo para el MVP académico)
-    private val usuarioDemo = "admin"
-    private val claveDemo = "kaiju123"
 
     fun onUsuarioChanged(valor: String) {
         _state.update {
@@ -47,16 +52,32 @@ class LoginViewModel : ViewModel() {
             return
         }
 
-        // 2. Validar que las credenciales sean las correctas
-        if (s.usuario.trim() != usuarioDemo || s.clave != claveDemo) {
-            _state.update {
-                it.copy(errores = LoginErrores(credenciales = "Usuario o contraseña incorrectos"))
-            }
-            return
-        }
+        // 2. Preguntarle al repository si las credenciales son correctas
+        viewModelScope.launch {
+            when (authRepository.iniciarSesion(s.usuario.trim(), s.clave)) {
+                ResultadoLogin.CORRECTO -> {
+                    // 3. Todo bien: limpia el formulario y avisa
+                    _state.value = LoginUiState()
+                    onExito()
+                }
 
-        // 3. Todo bien: limpia el formulario y avisa
-        _state.value = LoginUiState()
-        onExito()
+                ResultadoLogin.CREDENCIALES_INVALIDAS -> _state.update {
+                    it.copy(errores = LoginErrores(credenciales = "Usuario o contraseña incorrectos"))
+                }
+
+                ResultadoLogin.SIN_CONEXION -> _state.update {
+                    it.copy(errores = LoginErrores(credenciales = "No se pudo conectar con el servidor"))
+                }
+            }
+        }
+    }
+
+    // ---------- Fábrica: arma el ViewModel real ----------
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                LoginViewModel(AuthRepository())
+            }
+        }
     }
 }

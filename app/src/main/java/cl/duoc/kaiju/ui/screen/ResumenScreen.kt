@@ -34,8 +34,7 @@ import cl.duoc.kaiju.viewmodel.ResumenViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ResumenScreen(
-    viewModel: ResumenViewModel = viewModel()
-) {
+    viewModel: ResumenViewModel = viewModel(factory = ResumenViewModel.Factory)) {
     val estado by viewModel.state.collectAsState()
 
     Scaffold(

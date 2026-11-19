@@ -1,26 +1,30 @@
 package cl.duoc.kaiju.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import cl.duoc.kaiju.data.local.AppDatabase
 import cl.duoc.kaiju.data.local.entity.ProductoEntity
 import cl.duoc.kaiju.data.local.entity.VentaEntity
-import cl.duoc.kaiju.repository.ProductoRepository
-import cl.duoc.kaiju.repository.VentaRepository
 import cl.duoc.kaiju.model.ItemCategoria
 import cl.duoc.kaiju.model.ItemRanking
 import cl.duoc.kaiju.model.ResumenUiState
+import cl.duoc.kaiju.repository.ProductoRepository
+import cl.duoc.kaiju.repository.VentaRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 
-class ResumenViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val database = AppDatabase.getInstance(application)
-    private val productoRepository = ProductoRepository(database.productoDao)
-    private val ventaRepository = VentaRepository(database)
+// Los repositories llegan por el constructor ("enchufes")
+class ResumenViewModel(
+    productoRepository: ProductoRepository,
+    ventaRepository: VentaRepository
+) : ViewModel() {
 
     // Se recalcula automáticamente cuando cambian los productos o las ventas
     val state: StateFlow<ResumenUiState> =
@@ -67,5 +71,20 @@ class ResumenViewModel(application: Application) : AndroidViewModel(application)
                 .map { ItemCategoria(it.key, it.value.sumOf { venta -> venta.total }) }
                 .sortedByDescending { it.total }
         )
+    }
+
+    // ---------- Fábrica: arma el ViewModel real con la base de datos real ----------
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = this[APPLICATION_KEY] as Application
+                val database = AppDatabase.getInstance(application)
+
+                ResumenViewModel(
+                    productoRepository = ProductoRepository(database.productoDao),
+                    ventaRepository = VentaRepository(database)
+                )
+            }
+        }
     }
 }
