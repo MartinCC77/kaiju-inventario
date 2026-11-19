@@ -1,9 +1,14 @@
 package cl.duoc.kaiju.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import cl.duoc.kaiju.data.local.AppDatabase
+import cl.duoc.kaiju.data.local.entity.ProductoEntity
 import cl.duoc.kaiju.data.repository.MovimientoRepository
 import cl.duoc.kaiju.data.repository.ProductoRepository
 import cl.duoc.kaiju.model.MovimientoErrores
@@ -18,11 +23,13 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class MovimientoViewModel(application: Application) : AndroidViewModel(application) {
-
-    private val database = AppDatabase.getInstance(application)
-    private val productoRepository = ProductoRepository(database.productoDao)
-    private val movimientoRepository = MovimientoRepository(database)
+// Los repositories y la acción de avisar llegan por el constructor ("enchufes")
+class MovimientoViewModel(
+    private val productoRepository: ProductoRepository,
+    private val movimientoRepository: MovimientoRepository,
+    // Recibe el producto y su nuevo stock. En la app real muestra la notificación
+    private val avisarStockBajo: (ProductoEntity, Int) -> Unit
+) : ViewModel() {
 
     // Productos disponibles para elegir en el formulario
     val productos = productoRepository.productos.stateIn(
@@ -121,17 +128,35 @@ class MovimientoViewModel(application: Application) : AndroidViewModel(applicati
 
             // Si fue una salida o ajuste y el stock quedó en el mínimo o menos, se avisa
             if (s.tipo != TipoMovimiento.ENTRADA && nuevoStock <= producto.stockMinimo) {
-                NotificacionHelper.mostrarStockBajo(
-                    context = getApplication<Application>(),
-                    productoId = producto.id,
-                    nombre = producto.nombre,
-                    stock = nuevoStock,
-                    stockMinimo = producto.stockMinimo
-                )
+                avisarStockBajo(producto, nuevoStock)
             }
 
             _state.value = MovimientoUiState() // limpia el formulario
             onGuardado()
+        }
+    }
+
+    // ---------- Fábrica: arma el ViewModel real con la base de datos real ----------
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = this[APPLICATION_KEY] as Application
+                val database = AppDatabase.getInstance(application)
+
+                MovimientoViewModel(
+                    productoRepository = ProductoRepository(database.productoDao),
+                    movimientoRepository = MovimientoRepository(database),
+                    avisarStockBajo = { producto, nuevoStock ->
+                        NotificacionHelper.mostrarStockBajo(
+                            context = application,
+                            productoId = producto.id,
+                            nombre = producto.nombre,
+                            stock = nuevoStock,
+                            stockMinimo = producto.stockMinimo
+                        )
+                    }
+                )
+            }
         }
     }
 }

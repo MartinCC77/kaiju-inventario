@@ -47,8 +47,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovimientoScreen(
-    viewModel: MovimientoViewModel = viewModel()
-) {
+    viewModel: MovimientoViewModel = viewModel(factory = MovimientoViewModel.Factory)) {
     val estado by viewModel.state.collectAsState()
     val productos by viewModel.productos.collectAsState()
     val movimientos by viewModel.movimientos.collectAsState()

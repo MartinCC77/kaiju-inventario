@@ -44,8 +44,7 @@ import androidx.compose.material.icons.filled.QrCodeScanner
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun VentaScreen(
-    viewModel: VentaViewModel = viewModel()
-) {
+    viewModel: VentaViewModel = viewModel(factory = VentaViewModel.Factory)) {
     val estado by viewModel.state.collectAsState()
     val productos by viewModel.productos.collectAsState()
     val ventas by viewModel.ventas.collectAsState()
