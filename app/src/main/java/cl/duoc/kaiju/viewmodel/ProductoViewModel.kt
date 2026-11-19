@@ -9,7 +9,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import cl.duoc.kaiju.data.local.AppDatabase
 import cl.duoc.kaiju.data.local.entity.ProductoEntity
-import cl.duoc.kaiju.data.repository.ProductoRepository
+import cl.duoc.kaiju.repository.ProductoRepository
 import cl.duoc.kaiju.model.ProductoErrores
 import cl.duoc.kaiju.model.ProductoUiState
 import cl.duoc.kaiju.utils.esDecimalValido

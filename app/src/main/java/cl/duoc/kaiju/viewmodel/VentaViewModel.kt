@@ -9,8 +9,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import cl.duoc.kaiju.data.local.AppDatabase
 import cl.duoc.kaiju.data.local.entity.ProductoEntity
-import cl.duoc.kaiju.data.repository.ProductoRepository
-import cl.duoc.kaiju.data.repository.VentaRepository
+import cl.duoc.kaiju.repository.ProductoRepository
+import cl.duoc.kaiju.repository.VentaRepository
 import cl.duoc.kaiju.model.VentaErrores
 import cl.duoc.kaiju.model.VentaUiState
 import cl.duoc.kaiju.utils.NotificacionHelper

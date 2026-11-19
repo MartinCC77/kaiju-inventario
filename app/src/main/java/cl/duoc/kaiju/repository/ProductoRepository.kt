@@ -1,11 +1,10 @@
-package cl.duoc.kaiju.data.repository
+package cl.duoc.kaiju.repository
 
 import cl.duoc.kaiju.data.local.dao.ProductoDao
 import cl.duoc.kaiju.data.local.entity.ProductoEntity
 import kotlinx.coroutines.flow.Flow
 
 class ProductoRepository(private val productoDao: ProductoDao) {
-
     val productos: Flow<List<ProductoEntity>> = productoDao.getAllProductos()
 
     suspend fun obtenerPorId(id: Long): ProductoEntity? = productoDao.getProductoById(id)

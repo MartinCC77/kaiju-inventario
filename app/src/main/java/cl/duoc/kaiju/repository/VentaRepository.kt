@@ -1,4 +1,4 @@
-package cl.duoc.kaiju.data.repository
+package cl.duoc.kaiju.repository
 
 import androidx.room.withTransaction
 import cl.duoc.kaiju.data.local.AppDatabase

@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import cl.duoc.kaiju.data.local.AppDatabase
 import cl.duoc.kaiju.data.local.entity.ProductoEntity
 import cl.duoc.kaiju.data.local.entity.VentaEntity
-import cl.duoc.kaiju.data.repository.ProductoRepository
-import cl.duoc.kaiju.data.repository.VentaRepository
+import cl.duoc.kaiju.repository.ProductoRepository
+import cl.duoc.kaiju.repository.VentaRepository
 import cl.duoc.kaiju.model.ItemCategoria
 import cl.duoc.kaiju.model.ItemRanking
 import cl.duoc.kaiju.model.ResumenUiState

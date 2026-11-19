@@ -9,8 +9,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import cl.duoc.kaiju.data.local.AppDatabase
 import cl.duoc.kaiju.data.local.entity.ProductoEntity
-import cl.duoc.kaiju.data.repository.MovimientoRepository
-import cl.duoc.kaiju.data.repository.ProductoRepository
+import cl.duoc.kaiju.repository.MovimientoRepository
+import cl.duoc.kaiju.repository.ProductoRepository
 import cl.duoc.kaiju.model.MovimientoErrores
 import cl.duoc.kaiju.model.MovimientoUiState
 import cl.duoc.kaiju.model.TipoMovimiento
