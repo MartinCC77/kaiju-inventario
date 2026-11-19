@@ -1,8 +1,12 @@
 package cl.duoc.kaiju.viewmodel
 
 import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import cl.duoc.kaiju.data.local.AppDatabase
 import cl.duoc.kaiju.data.local.entity.ProductoEntity
 import cl.duoc.kaiju.data.repository.ProductoRepository
@@ -18,12 +22,10 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class ProductoViewModel(application: Application) : AndroidViewModel(application) {
-
-    // El repository es quien accede a la base de datos
-    private val repository = ProductoRepository(
-        AppDatabase.getInstance(application).productoDao
-    )
+// El repository llega por el constructor ("enchufe"): así en las pruebas se puede usar uno falso
+class ProductoViewModel(
+    private val repository: ProductoRepository
+) : ViewModel() {
 
     // Lista de productos: se actualiza sola cuando cambia la base de datos
     val productos = repository.productos.stateIn(
@@ -133,5 +135,18 @@ class ProductoViewModel(application: Application) : AndroidViewModel(application
 
     fun eliminarProducto(producto: ProductoEntity) {
         viewModelScope.launch { repository.eliminar(producto) }
+    }
+
+    // ---------- Fábrica: arma el ViewModel real con la base de datos real ----------
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val application = this[APPLICATION_KEY] as Application
+                val repository = ProductoRepository(
+                    AppDatabase.getInstance(application).productoDao
+                )
+                ProductoViewModel(repository)
+            }
+        }
     }
 }

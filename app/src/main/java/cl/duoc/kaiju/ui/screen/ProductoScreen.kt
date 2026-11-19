@@ -48,7 +48,7 @@ import androidx.compose.foundation.layout.Box
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProductoScreen(
-    viewModel: ProductoViewModel = viewModel(),
+    viewModel: ProductoViewModel = viewModel(factory = ProductoViewModel.Factory),
     onCerrarSesion: () -> Unit = {}
 ) {
     val estado by viewModel.state.collectAsState()
