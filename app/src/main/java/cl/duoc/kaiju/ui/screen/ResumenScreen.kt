@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.kaiju.ui.components.BarraProgreso
+import cl.duoc.kaiju.ui.components.TarjetaIndicadoresEconomicos
 import cl.duoc.kaiju.viewmodel.ResumenViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,7 +49,9 @@ fun ResumenScreen(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // Fila 1 de indicadores
+            // Indicadores económicos desde una API externa (mindicador.cl)
             item {
+                TarjetaIndicadoresEconomicos(totalVendido = estado.totalVendido)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TarjetaIndicador(
                         modifier = Modifier.weight(1f),
