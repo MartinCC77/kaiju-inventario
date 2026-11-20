@@ -56,8 +56,9 @@ fun LoginScreen(
             Text("Inicia sesión para continuar", style = MaterialTheme.typography.bodyMedium)
 
             CampoTexto(
-                valor = estado.usuario, etiqueta = "Usuario", icono = Icons.Filled.Person,
-                error = estado.errores.usuario, onChange = viewModel::onUsuarioChanged
+                valor = estado.usuario, etiqueta = "Correo", icono = Icons.Filled.Person,
+                error = estado.errores.usuario, onChange = viewModel::onUsuarioChanged,
+                tipoTeclado = KeyboardType.Email
             )
             CampoTexto(
                 valor = estado.clave, etiqueta = "Contraseña", icono = Icons.Filled.Lock,
