@@ -65,6 +65,7 @@ fun PrincipalScreen(onCerrarSesion: () -> Unit) {
             // Crossfade: animación de desvanecimiento al cambiar de sección
             Crossfade(targetState = destinoActual, label = "cambioDeSeccion") { destino ->
                 when (destino) {
+                    Destino.USUARIOS -> UsuarioScreen(onCerrarSesion = onCerrarSesion)
                     Destino.PRODUCTOS -> ProductoScreen(onCerrarSesion = onCerrarSesion)
                     Destino.MOVIMIENTOS -> MovimientoScreen()
                     Destino.VENTAS -> VentaScreen()
