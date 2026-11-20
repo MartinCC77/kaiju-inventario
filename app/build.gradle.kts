@@ -68,6 +68,9 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.camera.mlkit.vision)
     implementation(libs.mlkit.barcode.scanning)
+    // Conexion con el backend: Retrofit y conversor Gson
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
 }
 
 // Obligatorio para que las pruebas de Kotest corran sobre la plataforma JUnit
