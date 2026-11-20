@@ -40,7 +40,7 @@ class LoginViewModel(
 
         // 1. Validar que los campos tengan formato correcto
         val errores = LoginErrores(
-            usuario = if (s.usuario.isBlank()) "El usuario es requerido" else null,
+            usuario = if (s.usuario.isBlank()) "El correo es requerido" else null,
             clave = when {
                 s.clave.isBlank() -> "La contraseña es requerida"
                 s.clave.length < 4 -> "Debe tener al menos 4 caracteres"
