@@ -20,14 +20,26 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // Firma del APK. LLAVE ACADEMICA: se sube al repositorio solo porque la rubrica lo pide.
+    // Nunca usar esta llave ni esta clave en una app real.
+    signingConfigs {
+        create("release") {
+            storeFile = file("kaiju-release.jks")
+            storePassword = "KaijuDuoc2026"
+            keyAlias = "kaiju"
+            keyPassword = "KaijuDuoc2026"
+        }
+    }
+
     buildTypes {
         debug {
             enableUnitTestCoverage = true
         }
         release {
+            signingConfig = signingConfigs.getByName("release")
             optimization {
-                enable = true
-                packageScope = setOf("androidx.**", "kotlin.**", "kotlinx.**")
+                // R8 desactivado: con la optimizacion activa el APK se cerraba al abrir (IllegalAccessError)
+                enable = false
             }
         }
     }
