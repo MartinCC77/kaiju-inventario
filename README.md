@@ -1,128 +1,170 @@
 # Kaiju Inventario
 
-Aplicación móvil Android para la **gestión y trazabilidad de inventario** de Kaiju. Permite registrar productos, controlar su stock, registrar movimientos y ventas, recibir alertas de stock bajo y revisar indicadores de ventas.
+Aplicación Android para la **gestión y trazabilidad de inventario** de la empresa ficticia **Kaiju**.
+Proyecto académico (MVP) con **datos ficticios**: no se usan datos ni credenciales reales.
 
-Proyecto académico (MVP) de la asignatura **DSY1105 – Desarrollo de Aplicaciones Móviles**, Duoc UC, Escuela de Informática y Telecomunicaciones, sede CITT San Bernardo. Corresponde a la **Evaluación Parcial 2**.
+- **Asignatura:** DSY1105 Desarrollo de Aplicaciones Móviles, sección DSY1105-005D
+- **Institución:** Duoc UC, CITT San Bernardo
+- **Grupo:** 8
+- **Paquete:** `cl.duoc.kaiju`
 
-> Todos los datos de la aplicación son **ficticios**. No se utilizan datos personales, credenciales ni información productiva real.
+## 1. Nombre del proyecto
 
-## Integrantes (Grupo 8)
+**Kaiju Inventario**
 
-- Martin Cortes
-- Christian Montecinos
-- Gabriel Fuentes
+Repositorios del proyecto:
 
-## Problema que resuelve
+| Repositorio | Contenido |
+| [kaiju-inventario](https://github.com/MartinCC77/kaiju-inventario) | App móvil (este repositorio) |
+| [usuarios-api](https://github.com/MartinCC77/usuarios-api) | Microservicio de usuarios y login (Spring Boot) |
 
-Kaiju controla su inventario con registros manuales y planillas, lo que genera diferencias entre el stock registrado y el real, olvidos de entradas o salidas, poca visibilidad de los productos con pocas unidades y dificultad para saber qué reponer. La aplicación centraliza esa información y deja un historial trazable de cada cambio de stock.
+## 2. Integrantes
 
-## Funcionalidades implementadas
+| Integrante
+| Martin Cortes 
+| Christian Montecinos 
+| Gabriel Fuentes 
 
-**Inicio de sesión**
-- Formulario con validación de campos y mensaje de error por credenciales incorrectas.
-- Usuario de prueba (ficticio): `admin` / `kaiju123`.
+Los commits de cada integrante se pueden ver en la pestaña **Commits** de GitHub o con `git shortlog -sn`.
 
-**Productos**
-- Formulario de alta con código, nombre, descripción, categoría, precio, stock actual y stock mínimo.
-- Validaciones por campo con ícono y mensaje de error (campos obligatorios, números válidos, valores no negativos, código no repetido).
-- Lista del inventario con aviso de **stock bajo** cuando el stock es igual o menor al mínimo.
-- Eliminación de productos.
-- Lectura del código del producto con la **cámara** (QR o código de barras).
+**Planificación del equipo (Trello):** [COMPLETAR: pegar aquí el enlace del tablero]
 
-**Movimientos de stock**
-- Registro de **entradas**, **salidas** y **ajustes**.
-- Reglas de negocio: no se permite una salida mayor al stock disponible y el ajuste exige un motivo.
-- Historial con tipo, cantidad, stock resultante, motivo y fecha (trazabilidad).
+## 3. Funcionalidades
 
-**Ventas**
-- Selección de producto (manual o escaneando su código) y cantidad, con total calculado en pantalla.
-- Cada venta descuenta stock, queda registrada y genera una salida en el historial de movimientos.
-- No permite vender más unidades que el stock disponible.
+- **Login conectado al microservicio:** el inicio de sesión valida correo y contraseña contra el backend (`/api/auth/login`). Muestra errores de credenciales y de conexión sin cerrar la app.
+- **Gestión de usuarios (CRUD completo):** listar, crear, editar y eliminar usuarios desde la pestaña *Usuarios*, con validaciones y confirmación antes de eliminar.
+- **Productos:** formulario validado (código único, precio mayor a 0, stock y mínimo enteros no negativos), lista con aviso de stock bajo y eliminación.
+- **Movimientos:** entradas, salidas y ajustes. La salida no puede dejar el stock negativo y el ajuste exige un motivo. Historial con trazabilidad.
+- **Ventas:** descuenta stock, guarda la venta y registra una salida con motivo "Venta", todo en una transacción de Room.
+- **Resumen:** total vendido, productos más y menos vendidos y ventas por categoría, con barras animadas.
+- **API externa:** la pestaña *Resumen* muestra el dólar, el euro, la UF y la UTM (mindicador.cl) y convierte el total vendido a dólares. Si el servicio externo falla, solo esa tarjeta muestra un aviso.
+- **Recurso nativo 1, cámara:** escáner de códigos QR y de barras con CameraX y ML Kit. Pide el permiso en tiempo de ejecución y no se cierra si se rechaza.
+- **Recurso nativo 2, notificaciones:** aviso de stock bajo (permiso `POST_NOTIFICATIONS`).
+- **Animaciones:** cambio entre pestañas, barras animadas, sacudida de campos con error, pulso del aviso de stock bajo y animación de listas.
 
-**Resumen**
-- Indicadores: total vendido, unidades vendidas, ventas realizadas y productos con stock bajo.
-- Productos más vendidos, menos vendidos y ventas por categoría, con barras animadas.
+### Arquitectura
 
-**Notificaciones**
-- Aviso de stock bajo cuando una venta, salida o ajuste deja un producto en su stock mínimo o menos.
-
-## Recursos nativos del dispositivo
-
-| Recurso | Uso en la app |
-|---|---|
-| Cámara (CameraX + ML Kit) | Escanear QR o códigos de barras para completar el código de un producto o seleccionarlo en una venta. El permiso se solicita en tiempo de ejecución y la app sigue funcionando si se rechaza. |
-| Notificaciones | Alerta de stock bajo. El permiso se solicita al iniciar sesión (Android 13 o superior) y la app sigue funcionando si se rechaza. |
-
-La app no guarda fotos ni imágenes: solo lee el texto del código escaneado.
-
-## Animaciones
-
-- Transición `Crossfade` al cambiar de sección en la barra inferior.
-- Barras de progreso del resumen que se llenan de forma animada.
-- Sacudida de los campos de formulario cuando falla una validación.
-- Pulso del aviso de stock bajo en la tarjeta del producto.
-- Animación de entrada y salida de las tarjetas de las listas (`animateItem`).
-- Parpadeo del marco guía del escáner.
-
-## Arquitectura y tecnologías
-
-- **Lenguaje:** Kotlin
-- **Interfaz:** Jetpack Compose con Material 3
-- **Arquitectura:** MVVM con flujo de datos unidireccional (`UiState` + `StateFlow`)
-- **Persistencia local:** Room (SQLite)
-- **Cámara:** CameraX y ML Kit Barcode Scanning
-- **SDK mínimo:** API 30 (Android 11)
-
-Las validaciones están en los ViewModel, desacopladas de la interfaz.
+Patrón **MVVM con Repository**. Cada ViewModel recibe sus dependencias por el constructor, lo que permite probarlos con repositories falsos.
 
 ```
-app/src/main/java/cl/duoc/kaiju
+app/src/main/java/cl/duoc/kaiju/
 ├── data/
-│   └── local/
-│       ├── AppDatabase.kt
-│       ├── dao/        ProductoDao, MovimientoDao, VentaDao
-│       └── entity/     ProductoEntity, MovimientoEntity, VentaEntity
-├── model/          estados de UI, errores y tipos
-├── repository/     capa de repositorio para acceso a datos
-├── ui/
-│   ├── components/ componentes reutilizables
-│   ├── navigation/ navegación raíz y destinos
-│   ├── screen/     pantallas
-│   └── theme/      tema Material 3
-├── utils/          validaciones y notificaciones
-├── viewmodel/      Login, Producto, Movimiento, Venta y Resumen
-└── MainActivity.kt
+│   ├── local/        Room: AppDatabase, dao, entity
+│   └── remote/       Retrofit: ApiService, RetrofitInstance, API externa y modelos
+├── model/            Estados de pantalla y resultados
+├── repository/       Acceso a datos (Room y red)
+├── ui/               screen, components, navigation, theme
+├── utils/            Validaciones y notificaciones
+└── viewmodel/        Lógica de cada pantalla (StateFlow)
 ```
 
-## Cómo ejecutar el proyecto
+### Tecnología
 
-**Requisitos:** Android Studio actualizado, conexión a internet para la primera sincronización de Gradle y un dispositivo o emulador con Android 11 (API 30) o superior.
+| Componente | Versión |
+|---|---|
+| Kotlin / Jetpack Compose (Material 3) | 2.4.21 / BOM 2026.09.00 |
+| Android Gradle Plugin / Gradle | 9.4.1 / 9.6.0 |
+| minSdk / compileSdk | 30 / 37 |
+| Room (SQLite) | 2.8.5 |
+| Retrofit + Gson | 3.0.0 |
+| CameraX / ML Kit Barcode | 1.4.1 / 17.3.0 |
+| Pruebas: Kotest / MockK / coroutines-test | 6.2.6 / 1.14.11 / 1.11.0 |
 
-1. Clona el repositorio:
+## 4. Endpoints utilizados
+
+### Microservicio propio: `usuarios-api` (Spring Boot + MySQL)
+
+Servidor desplegado en AWS EC2. **URL base:** `http://52.45.85.64:8080`
+
+| Método | Endpoint | Descripción | Respuestas |
+|---|---|---|---|
+| POST | `/api/auth/login` | Inicia sesión. Cuerpo: `{"correo": "...", "contrasena": "..."}` | 200 con el usuario, 401 credenciales incorrectas, 400 datos vacíos |
+| GET | `/api/usuarios` | Lista todos los usuarios | 200 |
+| GET | `/api/usuarios/{id}` | Obtiene un usuario | 200, 404 |
+| POST | `/api/usuarios` | Crea un usuario. Cuerpo: `nombre`, `correo`, `contrasena`, `rol` | 201, 400, 409 correo repetido |
+| PUT | `/api/usuarios/{id}` | Modifica un usuario (contraseña y rol opcionales) | 200, 400, 404, 409 |
+| DELETE | `/api/usuarios/{id}` | Elimina un usuario | 204, 404 |
+
+Las contraseñas se guardan cifradas con BCrypt y nunca se devuelven en las respuestas. Los errores se responden como `{"mensaje": "..."}`.
+
+### API externa: mindicador.cl
+
+| Método | Endpoint | Uso en la app |
+|---|---|---|
+| GET | `https://mindicador.cl/api` | Dólar, euro, UF y UTM en la pestaña *Resumen* |
+
+## 5. Pasos para ejecutar
+
+### Requisitos
+
+- Android Studio reciente (compatible con Android Gradle Plugin 9.4)
+- Dispositivo o emulador con **Android 11 o superior** (API 30)
+- Conexión a internet (login y API externa)
+
+### Ejecución
+
+1. Clonar el repositorio:
    ```
    git clone https://github.com/MartinCC77/kaiju-inventario.git
    ```
-2. Abre la carpeta en Android Studio (**File → Open**).
-3. Espera a que termine el **Gradle Sync**. Si Android Studio solicita instalar algún SDK, acéptalo.
-4. Conecta un celular con depuración USB activada o inicia un emulador.
-5. Pulsa **Run** (▶).
-6. Inicia sesión con `admin` / `kaiju123`.
+2. Abrir la carpeta en Android Studio y esperar a que Gradle sincronice.
+3. Seleccionar un dispositivo y presionar **Run**.
+4. Iniciar sesión con el usuario de prueba (ficticio): **`admin@kaiju.cl`** / **`kaiju123`**.
 
-**Para probar el escáner:** genera un código QR con el texto del código de un producto (por ejemplo `P001`) y escanéalo desde Productos o Ventas.
+El backend ya está desplegado en AWS, por lo que no hace falta ejecutarlo para probar la app. Si se quiere usar un backend local, la instrucción está en el README de [usuarios-api](https://github.com/MartinCC77/usuarios-api) y hay que cambiar la constante `BASE_URL` de `data/remote/RetrofitInstance.kt` (en el emulador, `http://10.0.2.2:8080/`).
 
-**Nota:** la base de datos usa migración destructiva (`fallbackToDestructiveMigration`), por lo que al cambiar la versión del esquema se borran los datos de prueba.
+### Instalar el APK firmado
 
-### Entorno y Versiones Utilizadas
-- **Lenguaje:** Kotlin 1.9+
-- **JDK / Java:** OpenJDK 17 o superior
-- **Android Gradle Plugin (AGP):** 8.x
-- **SDK de Android:** Mínimo API 30 (Android 11) / Objetivo API 34
-- **IDE:** Android Studio Iguana / IntelliJ IDEA 2023+
+```
+adb install entrega/kaiju-inventario.apk
+```
 
-## Planificación
+### Pruebas unitarias
 
-https://trello.com/invite/b/6add3a90d2d39b51422d26f7/ATTI29956f90b1204e577b84c5017c435087057433D7/kaiju-inventario-grupo-8
+```
+./gradlew testDebugUnitTest
+./gradlew createDebugUnitTestCoverageReport
+```
 
-## Estado del proyecto
+El informe de cobertura queda en `app/build/reports/coverage/test/debug/index.html`.
 
-Avance intermedio (Evaluación Parcial 2). Será mejorado y ampliado para la Evaluación Final Transversal.
+Cobertura de la lógica de negocio (instrucciones cubiertas por las pruebas unitarias):
+
+| Paquete | Cobertura |
+|---|---|
+| `viewmodel` | 93% |
+| `repository` | 81% |
+| `model` | 97% |
+
+El total del proyecto es menor porque incluye las pantallas de Compose y el código que genera Room, que no son lógica de negocio.
+
+![Informe de cobertura](docs/cobertura.png)
+
+## 6. APK firmado y llave (.jks)
+
+| Elemento | Ubicación |
+|---|---|
+| APK firmado | `entrega/kaiju-inventario.apk` |
+| Llave de firma | `app/kaiju-release.jks` (alias `kaiju`) |
+| Configuración de la firma | bloque `signingConfigs` de `app/build.gradle.kts` |
+
+La llave es de uso **exclusivamente académico**: se publica en el repositorio solo porque la evaluación lo exige. No debe usarse para una aplicación real.
+
+Verificación de la firma:
+
+```
+apksigner verify --verbose --print-certs entrega/kaiju-inventario.apk
+```
+
+![APK firmado verificado con apksigner](docs/apk-firmado.png)
+
+![Llave .jks](docs/llave-jks.png)
+
+## Limitaciones conocidas y mejoras pendientes
+
+- El backend no usa token (JWT): los endpoints de usuarios no exigen sesión.
+- La comunicación es por `http`; para producción debería usarse `https`.
+- La pestaña de usuarios está visible para cualquier usuario, sin restringir por rol.
+- La optimización R8 del APK de release está desactivada porque provocaba un cierre al abrir la app (`IllegalAccessError`).
+- No hay edición de productos ni diseño especial para tabletas.
+- La sesión no se guarda al cerrar la app.
