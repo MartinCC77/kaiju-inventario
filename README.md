@@ -27,7 +27,7 @@ Repositorios del proyecto:
 
 Los commits de cada integrante se pueden ver en la pestaña **Commits** de GitHub o con `git shortlog -sn`.
 
-**Planificación del equipo (Trello):** [COMPLETAR: pegar aquí el enlace del tablero]
+**Planificación del equipo (Trello):** https://trello.com/invite/b/6b03691635d3801f38de7de7/ATTI3a1f8e6c111b2879966f20b47fb3c95b45CA7F2F/kaiju-inventario-g8
 
 ## 3. Funcionalidades
 
